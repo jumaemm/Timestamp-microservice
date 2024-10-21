@@ -15,6 +15,7 @@ app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 20
 app.use(express.static('public'));
 
 const logger = (req, res, next) => {
+  console.log("Logger running")
   console.log(`${req.method} ${req.path} - ${req.ip}`);
   next();
 };
@@ -39,7 +40,7 @@ var listener = app.listen(process.env.PORT || 3000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
 
-app.get('/api/:date', (req, res) => {
+app.get('/api/:date?', (req, res) => {
   const dateString = req.params.date;
   let date;
 
@@ -50,9 +51,14 @@ app.get('/api/:date', (req, res) => {
     date = new Date(dateString);
   }
 
-  if (isNaN(date.getTime())) {
+  if (!dateString) {
+    res.json({ unix: new Date().getTime(), utc: new Date().toUTCString() });
+  }
+
+  else if (isNaN(date.getTime())) {
     res.json({ error: 'Invalid Date' });
   } else {
     res.json({ unix: date.getTime(), utc: date.toUTCString() });
   }
+
 });
